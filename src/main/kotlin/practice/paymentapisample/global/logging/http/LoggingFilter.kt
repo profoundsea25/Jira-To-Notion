@@ -62,13 +62,13 @@ internal class LoggingFilter : OncePerRequestFilter() {
         log.info("HTTP Request ${wrappedRequest.method} $uri")
         logPayload(
             prefix = HttpType.REQUEST,
-            contentType = wrappedRequest.contentType ?: "",
+            contentType = wrappedRequest.contentType ?: MediaType.APPLICATION_JSON_VALUE,
             inputStream = wrappedRequest.inputStream)
         filterChain.doFilter(wrappedRequest, wrappedResponse)
     } finally {
         logPayload(
             prefix = HttpType.RESPONSE,
-            contentType = wrappedResponse.contentType ?: "",
+            contentType = wrappedResponse.contentType ?: MediaType.APPLICATION_JSON_VALUE,
             inputStream = wrappedResponse.contentInputStream)
         wrappedResponse.copyBodyToResponse()
     }
