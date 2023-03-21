@@ -62,20 +62,20 @@ internal class LoggingFilter : OncePerRequestFilter() {
         log.info("HTTP Request ${wrappedRequest.method} $uri")
         logPayload(
             prefix = HttpType.REQUEST,
-            contentType = wrappedRequest.contentType ?: MediaType.APPLICATION_JSON_VALUE,
+            contentType = wrappedRequest.contentType,
             inputStream = wrappedRequest.inputStream)
         filterChain.doFilter(wrappedRequest, wrappedResponse)
     } finally {
         logPayload(
             prefix = HttpType.RESPONSE,
-            contentType = wrappedResponse.contentType ?: MediaType.APPLICATION_JSON_VALUE,
+            contentType = wrappedResponse.contentType,
             inputStream = wrappedResponse.contentInputStream)
         wrappedResponse.copyBodyToResponse()
     }
 
     private fun logPayload(
         prefix: HttpType,
-        contentType: String,
+        contentType: String?,
         inputStream: InputStream,
     ) {
         val inputStreamByteArray: ByteArray = StreamUtils.copyToByteArray(inputStream)
@@ -83,18 +83,22 @@ internal class LoggingFilter : OncePerRequestFilter() {
             !isWriteable(contentType) -> "Binary Content"
             inputStreamByteArray.isNotEmpty() -> String(inputStreamByteArray)
             else -> "" }
-        log.info("$prefix payload=$payload content-type=$contentType")
+        log.info("$prefix payload=$payload")
     }
 
     private fun isWriteable(
-        contentType: String
+        contentType: String?
     ): Boolean =
-        MediaType.valueOf(contentType) in setOf(
-            MediaType.valueOf("text/*"),
-            MediaType.APPLICATION_FORM_URLENCODED,
-            MediaType.APPLICATION_JSON,
-            MediaType.valueOf("application/*+json"),
-            MediaType.APPLICATION_XML,
-            MediaType.valueOf("application/*+xml"),
-            MediaType.MULTIPART_FORM_DATA)
+        if (contentType.isNullOrBlank()) {
+            true
+        } else {
+            MediaType.valueOf(contentType) in setOf(
+                MediaType.valueOf("text/*"),
+                MediaType.APPLICATION_FORM_URLENCODED,
+                MediaType.APPLICATION_JSON,
+                MediaType.valueOf("application/*+json"),
+                MediaType.APPLICATION_XML,
+                MediaType.valueOf("application/*+xml"),
+                MediaType.MULTIPART_FORM_DATA)
+        }
 }

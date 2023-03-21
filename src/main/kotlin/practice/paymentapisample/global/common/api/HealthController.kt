@@ -1,5 +1,6 @@
 package practice.paymentapisample.global.common.api
 
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
@@ -9,6 +10,7 @@ import practice.paymentapisample.global.common.dto.CommonResponseDto
 class HealthController : BaseRestController() {
 
     @GetMapping("/")
+    @Operation(summary = "Health Check")
     fun healthCheck(): ResponseEntity<CommonResponseDto<Nothing>> =
         ResponseEntity.ok().body(CommonResponseDto())
 
