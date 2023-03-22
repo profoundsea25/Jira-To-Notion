@@ -1,12 +1,10 @@
 spring:
-  profiles:
-    default: local
   datasource:
     hikari:
       driver-class-name: org.h2.Driver
-      jdbc-url: jdbc:h2:tcp://localhost/~/sampleapi
+      jdbc-url: jdbc:h2:mem:testdb
       username: sa
-      password: ' '
+      password:
 
 logging:
   config: classpath:log4j2.xml

@@ -1,5 +1,5 @@
-# Server Info : Payment API Sample
-- 결제 모듈 API를 로컬로 구현한 샘플 코드
+# Server Info : TOY API
+- 결제 모듈 API를 로컬로 구현
 
 ## Requirement
 - ~~Oauth 2.0를 활용한 인증~~
