@@ -19,8 +19,8 @@ import org.springframework.transaction.PlatformTransactionManager
 import javax.sql.DataSource
 
 @Configuration
-@ConfigurationProperties(prefix = "spring.datasource.hikari")
-@EnableJpaRepositories(basePackages = ["practice.toyapi.domain.repository"])
+@ConfigurationProperties(prefix = DbConfigConst.configPrefix)
+@EnableJpaRepositories(basePackages = [DbConfigConst.repositoryBasePackage])
 class DatabaseConfig : HikariConfig() {
 
     @Bean
@@ -34,7 +34,7 @@ class DatabaseConfig : HikariConfig() {
         val em = LocalContainerEntityManagerFactoryBean()
         em.dataSource = dataSource
         em.jpaVendorAdapter = HibernateJpaVendorAdapter()
-        em.setPackagesToScan("practice.toyapi.domain.entity")
+        em.setPackagesToScan(DbConfigConst.entityBasePackage)
         em.setJpaPropertyMap(
             mapOf(
                 HBM2DDL_AUTO to Action.CREATE.externalHbm2ddlName,

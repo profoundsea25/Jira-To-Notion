@@ -43,6 +43,7 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     runtimeOnly("com.mysql:mysql-connector-j")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude("org.junit.vintage", "junit-vintage-engine")
