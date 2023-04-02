@@ -4,7 +4,7 @@ spring:
   datasource:
     hikari:
       driver-class-name: org.h2.Driver
-      jdbc-url: jdbc:h2:tcp://localhost/~/sampleapi
+      jdbc-url: jdbc:h2:tcp://localhost/~/toyproject/jiratonotion
       username: sa
       password: ' '
   mvc:

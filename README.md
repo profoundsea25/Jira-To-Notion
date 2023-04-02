@@ -1,6 +1,6 @@
-# Server Info : TOY API (Jira To Notion)
-- Jira와 Notion을 각 Open API를 통해 연동
-  - Jira의 티켓을 Notion의 특정 페이지 추가 자동화
+# Server Info : Jira To Notion (Toy Project)
+- Jira에 생성된 티켓을 Notion의 특정 페이지로 추가하는 애플리케이션입니다.
+  - Jira와 Notion을 각 Open API를 통해 연동
 
 ## Constraints
 - Kotlin 사용

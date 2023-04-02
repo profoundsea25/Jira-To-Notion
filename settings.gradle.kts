@@ -1,1 +1,1 @@
-rootProject.name = "ToyApi"
+rootProject.name = "JiraToNotion"
