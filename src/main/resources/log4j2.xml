@@ -3,10 +3,10 @@
 
     <!-- 변수 설정 -->
     <Properties>
-        <property name="SERVER_NAME">toyApi</property>
-        <property name="LOG_DIR">../logs/${SERVER_NAME}</property>
+<!--        <property name="SERVER_NAME">toyApi</property>-->
+<!--        <property name="LOG_DIR">../logs/${SERVER_NAME}</property>-->
         <Property name="LAYOUT_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %clr{%5p} [%thread] %clr{[%logger{1.}]}{cyan} : %msg [traceId=%mdc{traceId}]%n</Property>
-        <Property name="FILE_LAYOUT_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%thread] [%logger{1.}] : %msg [traceId=%mdc{traceId}]%n</Property>
+<!--        <Property name="FILE_LAYOUT_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%thread] [%logger{1.}] : %msg [traceId=%mdc{traceId}]%n</Property>-->
     </Properties>
 
     <!-- Appender, Layout 설정 -->

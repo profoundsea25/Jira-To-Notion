@@ -2,7 +2,6 @@ package practice.toyapi.global.logging.http
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletRequestWrapper
 import jakarta.servlet.http.HttpServletResponse
 import org.slf4j.MDC
 import org.springframework.http.MediaType
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Component
 import org.springframework.util.StopWatch
 import org.springframework.util.StreamUtils
 import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.web.util.ContentCachingRequestWrapper
 import org.springframework.web.util.ContentCachingResponseWrapper
 import practice.toyapi.global.common.enums.HttpType
 import practice.toyapi.global.logging.log
@@ -20,14 +20,6 @@ import java.util.*
 internal class LoggingFilter : OncePerRequestFilter() {
     private val log = this.log()
 
-    private val exceptLoggingUri: Set<String> =
-        setOf(
-            "favicon.ico",
-            "swagger",
-            "/v3/api-docs", // Swagger 3
-            "/actuator/health",
-        )
-
     override fun shouldNotFilter(request: HttpServletRequest): Boolean =
         exceptLoggingUri.any { it in request.requestURI }
 
@@ -36,41 +28,51 @@ internal class LoggingFilter : OncePerRequestFilter() {
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val traceId: String = UUID.randomUUID().toString()
-        MDC.put("traceId", traceId)
-        val stopWatch: StopWatch = StopWatch(traceId).also { it.start() }
-        if (isAsyncDispatch(request)) {
-            filterChain.doFilter(request, response)
-        } else {
-            filterWithLogging(
-                wrappedRequest = RequestWrapper(request),
-                wrappedResponse = ResponseWrapper(response),
-                filterChain = filterChain)
-        }
+        MDC.put("traceId", UUID.randomUUID().toString())
+        val stopWatch: StopWatch = StopWatch().also { it.start() }
+        filterWithLogging(
+            wrappedRequest = ContentCachingRequestWrapper(request),
+            wrappedResponse = ContentCachingResponseWrapper(response),
+            filterChain = filterChain
+        )
         stopWatch.stop()
-        log.info("Processing time=${stopWatch.totalTimeMillis} ms")
+        log.info("Running time=${stopWatch.totalTimeMillis} ms")
     }
 
     private fun filterWithLogging(
-        wrappedRequest: HttpServletRequestWrapper,
+        wrappedRequest: ContentCachingRequestWrapper,
         wrappedResponse: ContentCachingResponseWrapper,
         filterChain: FilterChain,
     ) = try {
-        val uri: String =
-            if (wrappedRequest.queryString.isNullOrBlank()) wrappedRequest.requestURI
-            else "${wrappedRequest.requestURI}?${wrappedRequest.queryString}"
+        filterChain.doFilter(wrappedRequest, wrappedResponse)
+    } finally {
+        val uri: String = getUriForLogging(
+            requestUri = wrappedRequest.requestURI,
+            queryString = wrappedRequest.queryString
+        )
         log.info("HTTP Request ${wrappedRequest.method} $uri")
         logPayload(
             prefix = HttpType.REQUEST,
             contentType = wrappedRequest.contentType,
-            inputStream = wrappedRequest.inputStream)
-        filterChain.doFilter(wrappedRequest, wrappedResponse)
-    } finally {
+            inputStream = wrappedRequest.inputStream
+        )
         logPayload(
             prefix = HttpType.RESPONSE,
             contentType = wrappedResponse.contentType,
-            inputStream = wrappedResponse.contentInputStream)
+            inputStream = wrappedResponse.contentInputStream
+        )
         wrappedResponse.copyBodyToResponse()
+    }
+
+    private fun getUriForLogging(
+        requestUri: String,
+        queryString: String?,
+    ): String {
+        val sb: StringBuilder = StringBuilder(requestUri)
+        if (!queryString.isNullOrBlank()) {
+            sb.append("?$queryString")
+        }
+        return sb.toString()
     }
 
     private fun logPayload(
@@ -82,8 +84,11 @@ internal class LoggingFilter : OncePerRequestFilter() {
         val payload: String = when {
             !isWriteable(contentType) -> "Binary Content"
             inputStreamByteArray.isNotEmpty() -> String(inputStreamByteArray)
-            else -> "" }
-        log.info("$prefix payload=$payload")
+            else -> ""
+        }
+        if (payload.isNotEmpty()) {
+            log.info("$prefix payload=$payload")
+        }
     }
 
     private fun isWriteable(
@@ -92,13 +97,27 @@ internal class LoggingFilter : OncePerRequestFilter() {
         if (contentType.isNullOrBlank()) {
             true
         } else {
-            MediaType.valueOf(contentType) in setOf(
+            MediaType.valueOf(contentType) in writableContentType
+        }
+
+    companion object {
+        private val exceptLoggingUri: Set<String> =
+            setOf(
+                "favicon.ico",
+                "swagger",
+                "/v3/api-docs", // Swagger 3
+                "/actuator/health",
+            )
+
+        private val writableContentType: Set<MediaType> =
+            setOf(
                 MediaType.valueOf("text/*"),
                 MediaType.APPLICATION_FORM_URLENCODED,
                 MediaType.APPLICATION_JSON,
                 MediaType.valueOf("application/*+json"),
                 MediaType.APPLICATION_XML,
                 MediaType.valueOf("application/*+xml"),
-                MediaType.MULTIPART_FORM_DATA)
-        }
+                MediaType.MULTIPART_FORM_DATA
+            )
+    }
 }
