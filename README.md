@@ -1,6 +1,5 @@
-# Server Info : Jira To Notion (Toy Project)
-- Jira에 생성된 티켓을 Notion의 특정 페이지로 추가하는 애플리케이션입니다.
-  - Jira와 Notion을 각 Open API를 통해 연동
+# Server Info : Prototype
+- Server Base With Kotlin
 
 ## Constraints
 - Kotlin 사용
@@ -8,12 +7,11 @@
   - MyBatis 금지
 - indent 3-depth 이상 금지
     - 예를 들어, `while`문 안에 `if`문을 사용했다면 2-depth
-- 테스트 코드 필수
-  - ~~kotest/mockk로 만든 커버리지 50 %~~
+- 단위 테스트 코드 필수
+- TDD
+- <오브젝트>의 내용 : 메시지를 통한 객체 간의 협력
 - 모든 테스트는 Build 시 반드시 성공해야 함.
     - 테스트용 DB는 In-Memory를 사용
-- SOLID
-    - 그 중 `open/closed principle`에 유의할 것
 
 ## Versions
 - Kotlin 1.7.22 (Java 17)

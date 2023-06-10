@@ -1,1 +1,1 @@
-rootProject.name = "JiraToNotion"
+rootProject.name = "prototype"
